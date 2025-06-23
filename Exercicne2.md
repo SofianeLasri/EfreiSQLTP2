@@ -62,4 +62,59 @@ Résultat après ajout de l'index :
 "Execution Time: 1.985 ms"
 ```
 
-On peut observer une réduction drastique du nombre d'I/O et une précision accrue dès le premier filtre. Le temps d'exécution est également beaucoup réduit (~18 secondes).
+On peut observer une réduction drastique du nombre d'I/O et une précision accrue dès le premier filtre. Le temps d'exécution est également réduit (~18 ms), mais plus faiblement.
+
+## 2.5 Impact du nombre de colonnes
+
+Requête :
+
+```sql
+EXPLAIN ANALYZE
+SELECT tconst, primary_title, start_year, title_type
+FROM title_basics
+WHERE title_type = 'movie' 
+AND start_year = 1950;
+```
+
+Résultat :
+
+```
+"QUERY PLAN"
+"Bitmap Heap Scan on title_basics  (cost=11.88..2782.31 rows=726 width=44) (actual time=0.227..2.026 rows=2009 loops=1)"
+"  Recheck Cond: ((start_year = 1950) AND ((title_type)::text = 'movie'::text))"
+"  Heap Blocks: exact=933"
+"  ->  Bitmap Index Scan on idx_title_basics_start_year_title_type  (cost=0.00..11.70 rows=726 width=0) (actual time=0.130..0.131 rows=2009 loops=1)"
+"        Index Cond: ((start_year = 1950) AND ((title_type)::text = 'movie'::text))"
+"Planning Time: 0.106 ms"
+"Execution Time: 2.133 ms"
+```
+
+### Le temps d'exécution a-t-il changé?
+
+Oui le temps a légèrement augmenté.
+
+### Pourquoi cette optimisation est-elle plus ou moins efficace que dans l'exercice 1?
+
+La table était déjà optimisée grâce à l'index composite. La marge de manoeuvre étant relativement petite, l'optimisation n'est pas très importante.
+
+### Dans quel cas un "covering index" serait idéal ?
+
+Ce genre d'index serait idéal dans le cas où nous effectuons les mêmes requêtes beaucoup de fois, comme par exemple pour un tableau de bord affichant des statistiques.
+
+## 2.6 Analyse de l'amélioration globale
+
+### Quelle est la différence de temps d'exécution par rapport à l'étape 2.1?
+
+La différence de temps d'exécution est d'environ 18ms.
+
+### Comment l'index composite modifie-t-il la stratégie?
+
+L'index composition permet une meilleure cartographie des données de la table, permettant un tri plus rapide. C'est comme si nous combinions 2 requêtes de filtres en une seule.
+
+### Pourquoi le nombre de blocs lus ("Heap Blocks") a-t-il diminué?
+
+La précision des requêtes étant bien plus élevée, le nombre de blocs lus se trouve naturellement diminuée.
+
+### Dans quels cas un index composite est-il particulièrement efficace?
+
+Dans les cas où nous avons constamment besoin de filtrer un certain de nombre de fois une donnée, l'usage d'indexes composites peut être utile. Par exemple, recherches de recettes de cuisines d'un certain type et écrites à une certaine période.
