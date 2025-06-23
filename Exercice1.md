@@ -42,3 +42,25 @@ Oui en raison de la quantité importante d'entrées dans la table analysée. La 
 ### Que représente la valeur "Rows Removed by Filter"?
 
 Il s'agit du nombre de lignes qui ne correspondent pas aux critères définis par la requêtes, ctd les entrées dont la date de début est différente de 2020.
+
+## 1.3 & 1.4 
+
+La création de cet index a permis une importante accélération du processus d'analyse d'environ 3 secondes.
+
+```
+"Gather  (cost=5687.30..271605.46 rows=420499 width=86) (actual time=92.294..638.245 rows=440009 loops=1)"
+"  Workers Planned: 2"
+"  Workers Launched: 2"
+"  ->  Parallel Bitmap Heap Scan on title_basics  (cost=4687.30..228555.56 rows=175208 width=86) (actual time=62.915..539.856 rows=146670 loops=3)"
+"        Recheck Cond: (start_year = 2020)"
+"        Rows Removed by Index Recheck: 671753"
+"        Heap Blocks: exact=10758 lossy=9900"
+"        ->  Bitmap Index Scan on idx_title_basics_start_year  (cost=0.00..4582.18 rows=420499 width=0) (actual time=78.999..79.000 rows=440009 loops=1)"
+"              Index Cond: (start_year = 2020)"
+"Planning Time: 0.445 ms"
+"JIT:"
+"  Functions: 6"
+"  Options: Inlining false, Optimization false, Expressions true, Deforming true"
+"  Timing: Generation 1.478 ms (Deform 0.517 ms), Inlining 0.000 ms, Optimization 1.314 ms, Emission 26.303 ms, Total 29.094 ms"
+"Execution Time: 667.655 ms"
+```
