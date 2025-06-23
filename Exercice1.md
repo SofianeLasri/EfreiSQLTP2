@@ -107,3 +107,21 @@ Non il reste identique.
 ### Pourquoi la sélection de moins de colonnes peut-elle améliorer les performances?
 
 J'ai envie de dire que ça tombe sous le sens. Mais bon au cas où, on va dire que c'est parce que les chariots sont moins lourds à pousser. (:
+
+## 1.6 Analyse de l'impact global
+
+### Quelle nouvelle stratégie PostgreSQL utilise-t-il maintenant?
+
+Après ajout de l'index, Postgre utilisé Parallel Bitmap Heap Scan  au lieu de Parallel Sequential Scan.
+
+### Le temps d'exécution s'est-il amélioré? De combien?
+
+Comme précédemment expliqué, le temps d'exécution s'est amélioré d'un peu plus de 3 secondes.
+
+### Que signifie "Bitmap Heap Scan" et "Bitmap Index Scan"?
+
+Selon un bon ami savant nommé Gérard Patrick-Théodore (sacré nom je sais), le Bitmap Index Scan crée un bitmap (carte de bits) indiquant quelles pages de la table contiennent des lignes intéressantes et ne récupère pas les données, juste leur position. À l'inverse, le Bitmap Bitmap Heap Scan utilise le bitmap créé par Postgre pour accéder directement aux pages pertinentes de la table. De plus, il récupère les données réelles des lignes.
+
+### Pourquoi l'amélioration n'est-elle pas plus importante ?
+
+Bien que selon moi, l'améliration est déjà conséquente, on peut imaginer qu'elle l'aurait été encore plus avec un nombre de donnée encore plus important et sur une machine plus lente. De plus, le filtrage actuel ne permet pas une exécution particulièrement rapide en raison du grand nombre de données écartées.
