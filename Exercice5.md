@@ -2,8 +2,8 @@
 
 <img width="471" alt="image" src="https://github.com/user-attachments/assets/f1a11dfa-0027-45d8-883b-9e046f5103d5" />
 
-Résultat de la requête : 
-"The Shawshank Redemption"	9.3
+<img width="471" alt="image" src="https://github.com/user-attachments/assets/91794efc-f18a-4017-8953-3b388944582f" />
+
 
 
 5.2
