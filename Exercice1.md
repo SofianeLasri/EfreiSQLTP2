@@ -64,3 +64,46 @@ La création de cet index a permis une importante accélération du processus d'
 "  Timing: Generation 1.478 ms (Deform 0.517 ms), Inlining 0.000 ms, Optimization 1.314 ms, Emission 26.303 ms, Total 29.094 ms"
 "Execution Time: 667.655 ms"
 ```
+
+## 1.5 Impact du nombre de colonnes
+
+Requête modifiée :
+
+```sql
+EXPLAIN ANALYZE
+SELECT tconst, primary_title, start_year
+FROM title_basics
+WHERE start_year = 2020;
+```
+
+Résultat :
+
+```
+"Gather  (cost=5687.30..271605.46 rows=420499 width=35) (actual time=60.022..446.708 rows=440009 loops=1)"
+"  Workers Planned: 2"
+"  Workers Launched: 2"
+"  ->  Parallel Bitmap Heap Scan on title_basics  (cost=4687.30..228555.56 rows=175208 width=35) (actual time=37.589..376.451 rows=146670 loops=3)"
+"        Recheck Cond: (start_year = 2020)"
+"        Rows Removed by Index Recheck: 671753"
+"        Heap Blocks: exact=13388 lossy=11798"
+"        ->  Bitmap Index Scan on idx_title_basics_start_year  (cost=0.00..4582.18 rows=420499 width=0) (actual time=47.934..47.935 rows=440009 loops=1)"
+"              Index Cond: (start_year = 2020)"
+"Planning Time: 0.090 ms"
+"JIT:"
+"  Functions: 12"
+"  Options: Inlining false, Optimization false, Expressions true, Deforming true"
+"  Timing: Generation 1.250 ms (Deform 0.604 ms), Inlining 0.000 ms, Optimization 1.256 ms, Emission 17.551 ms, Total 20.056 ms"
+"Execution Time: 466.752 ms"
+```
+
+### Le temps d'exécution a-t-il changé? Pourquoi?
+
+Oui le temps d'exécution a été accéléré en raison du nombre de colonnes sélectionnées moins important.
+
+### Le plan d'exécution est-il différent ?
+
+Non il reste identique.
+
+### Pourquoi la sélection de moins de colonnes peut-elle améliorer les performances?
+
+J'ai envie de dire que ça tombe sous le sens. Mais bon au cas où, on va dire que c'est parce que les chariots sont moins lourds à pousser. (:
